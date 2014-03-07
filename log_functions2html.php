@@ -20,7 +20,7 @@ if(count($argv) < 4) {
 }
 
 // ターゲット関数名
-$target = $argv[1];
+$target = mb_strtolower($argv[1]);
 // pg_log下のログファイル名
 $logfilename = $argv[2];
 // 一時ファイル名
@@ -29,7 +29,7 @@ $csvfilename = $argv[3];
 // pg_logのログファイルから直近のターゲット関数の実行ログをとりだす
 $cmd = 'echo "LOG:  log_functions, BEGIN, ' . $target . '" >' . $csvfilename;
 system($cmd);
-$cmd = 'grep "^LOG:\s*log_functions," ' . $logfilename . ' | tac | sed "/LOG:  log_functions, BEGIN, ' . $target . '/,$$d"|tac >>' . $csvfilename;
+$cmd = 'grep "^LOG:\s*log_functions," ' . $logfilename . ' | tac | ' . "perl -e '" . '$flag=0;while(<>){$l=$_;if($l =~ /^LOG:  log_functions, BEGIN, ' . $target . '\s*$/){$flag=1;}if($flag==0){print $l;}}' . "' |tac >>" . $csvfilename;
 system($cmd);
 
 // 関数名と行番号を取り出す
